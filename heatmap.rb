@@ -1,10 +1,11 @@
 #This script reads all files in subdir, and generates a matlab file to heatmap them
-network_file, genes_file, subdir = ARGV
+network_file, genes_file, subdir, multifactor = ARGV
 p1_vals, p2_vals, p3_vals = Dir.glob("#{subdir}/eclass_*").map{|f| f.split("_").last(3).map{|v| v.to_f}}.transpose.map{|a| a.uniq.sort}
 p1_vals = p1_vals.map{|v| v.to_i}
 p2_vals = p2_vals.map{|v| v.to_i}
 total = p1_vals.size * p2_vals.size * p3_vals.size
-
+stats = []
+multifactor = multifactor.to_f
 
 #read gene names
 genes = []
@@ -33,6 +34,9 @@ open network_file do |f|
 	end
 end
 min_genes = nodes.keys & genes
+stats << "number of genes: #{genes.size}"
+stats << "number of nodes: #{nodes.size}"
+stats << "Overlap: #{min_genes.size}"
 
 #Work on every combination of parameter values
 ratios = {}
@@ -67,6 +71,7 @@ p1_vals.each do |p1|
 			min_genes.each do |g|
 				size[klass[g]] = size[klass[g]] + 1
 			end
+			stats << "#{p1}, #{p2}, #{p3} - C: #{size["C"]}, E: #{size["E"]}, O: #{size["O"]}"
 			
 			interactions = {"C" => {"C" => 0, "E" => 0, "O" => 0},
 							"E" => {"C" => 0, "E" => 0, "O" => 0},
@@ -81,23 +86,25 @@ p1_vals.each do |p1|
 			end
 			
 			ratios[p1][p2][p3] = {
-				"C" => {"C" => interactions["C"]["C"].to_f/(size["C"]*size["C"]-size["C"]),
-						"E" => interactions["C"]["E"].to_f/(size["C"]*size["E"]),
-						"O" => interactions["C"]["O"].to_f/(size["C"]*size["O"])},
-				"E" => {"E" => interactions["E"]["E"].to_f/(size["E"]*size["E"]-size["E"]),
-						"C" => interactions["E"]["C"].to_f/(size["E"]*size["C"]),
-						"O" => interactions["E"]["O"].to_f/(size["E"]*size["O"])},
-				"O" => {"O" => interactions["O"]["O"].to_f/(size["O"]*size["O"]-size["O"]),
-						"C" => interactions["O"]["C"].to_f/(size["O"]*size["C"]),
-						"E" => interactions["O"]["E"].to_f/(size["O"]*size["E"])}
+				"C" => {"C" => interactions["C"]["C"].to_f/(size["C"]*size["C"]-size["C"])/multifactor,
+						"E" => interactions["C"]["E"].to_f/(size["C"]*size["E"])/multifactor,
+						"O" => interactions["C"]["O"].to_f/(size["C"]*size["O"])}/multifactor,
+				"E" => {"E" => interactions["E"]["E"].to_f/(size["E"]*size["E"]-size["E"])/multifactor,
+						"C" => interactions["E"]["C"].to_f/(size["E"]*size["C"])/multifactor,
+						"O" => interactions["E"]["O"].to_f/(size["E"]*size["O"])}/multifactor,
+				"O" => {"O" => interactions["O"]["O"].to_f/(size["O"]*size["O"]-size["O"])/multifactor,
+						"C" => interactions["O"]["C"].to_f/(size["O"]*size["C"])/multifactor,
+						"E" => interactions["O"]["E"].to_f/(size["O"]*size["E"])/multifactor}
 				}
 		
 		end
 	end
 end
 
+
 open("#{subdir}/e_percent.out", "w"){ |f| ecount.map{|k,v| [k,v/total]}.sort{|a,b| b.last == a.last ? a.first <=> b.first : b.last <=> a.last}.each{|pair| f.puts pair.join "    "} }
 open("#{subdir}/c_percent.out", "w"){ |f| ccount.map{|k,v| [k,v/total]}.sort{|a,b| b.last == a.last ? a.first <=> b.first : b.last <=> a.last}.each{|pair| f.puts pair.join "    "} }
+open("#{subdir}/stats.out", "w"){|f| f.puts stats.join("\n")}
 
 matrix = ""
 row_labels = p1_vals.map{|p1| "#{(p2_vals.size/2).times.map{"' '"}.join(" ")} '#{p1}' #{(p2_vals.size - p2_vals.size/2 - 1).times.map{"' '"}.join(" ")}"}.join " "

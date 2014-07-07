@@ -34,20 +34,12 @@ function script9
 
 
 for pct = 10:10:50
-	for sc =0: 1: 10
-		for rtc = -6.0: 1.0: 0.0
+	for sc =5: 1: 10
+		for rtc = -5.0: 1.0: 5.0
 			 col9('ectoderm', 'ectoderm-exp.csv', 'ectoderm-rt.csv', pct, sc, rtc);
 			 col9('endoderm', 'endoderm-exp.csv', 'endoderm-rt.csv', pct, sc, rtc);
 			 col9('mesoderm', 'mesoderm-exp.csv', 'mesoderm-rt.csv', pct, sc, rtc);
 		end
-		
-		
-		for rtc = -3.8: 0.2: -3.2
-			 col9('ectoderm', 'ectoderm-exp.csv', 'ectoderm-rt.csv', pct, sc, rtc);
-			 col9('mesoderm', 'mesoderm-exp.csv', 'mesoderm-rt.csv', pct, sc, rtc);
-			 col9('endoderm', 'endoderm-exp.csv', 'endoderm-rt.csv', pct, sc, rtc);
-		end
-		
 		
 	end
 end
