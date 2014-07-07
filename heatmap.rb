@@ -1,5 +1,5 @@
 #This script reads all files in subdir, and generates a matlab file to heatmap them
-network_file, genes_file, subdir, multifactor = ARGV
+subdir, network_file, multifactor, genes_file = ARGV
 p1_vals, p2_vals, p3_vals = Dir.glob("#{subdir}/eclass_*").map{|f| f.split("_").last(3).map{|v| v.to_f}}.transpose.map{|a| a.uniq.sort}
 p1_vals = p1_vals.map{|v| v.to_i}
 p2_vals = p2_vals.map{|v| v.to_i}
@@ -88,10 +88,10 @@ p1_vals.each do |p1|
 			ratios[p1][p2][p3] = {
 				"C" => {"C" => interactions["C"]["C"].to_f/(size["C"]*size["C"]-size["C"])/multifactor,
 						"E" => interactions["C"]["E"].to_f/(size["C"]*size["E"])/multifactor,
-						"O" => interactions["C"]["O"].to_f/(size["C"]*size["O"])}/multifactor,
+						"O" => interactions["C"]["O"].to_f/(size["C"]*size["O"])/multifactor},
 				"E" => {"E" => interactions["E"]["E"].to_f/(size["E"]*size["E"]-size["E"])/multifactor,
 						"C" => interactions["E"]["C"].to_f/(size["E"]*size["C"])/multifactor,
-						"O" => interactions["E"]["O"].to_f/(size["E"]*size["O"])}/multifactor,
+						"O" => interactions["E"]["O"].to_f/(size["E"]*size["O"])/multifactor},
 				"O" => {"O" => interactions["O"]["O"].to_f/(size["O"]*size["O"]-size["O"])/multifactor,
 						"C" => interactions["O"]["C"].to_f/(size["O"]*size["C"])/multifactor,
 						"E" => interactions["O"]["E"].to_f/(size["O"]*size["E"])/multifactor}
