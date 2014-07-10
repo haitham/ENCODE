@@ -107,9 +107,11 @@ open("#{subdir}/c_percent.out", "w"){ |f| ccount.map{|k,v| [k,v/total]}.sort{|a,
 open("#{subdir}/stats.out", "w"){|f| f.puts stats.join("\n")}
 
 matrix = ""
-row_labels = p1_vals.map{|p1| "#{(p2_vals.size/2).times.map{"' '"}.join(" ")} '#{p1}' #{(p2_vals.size - p2_vals.size/2 - 1).times.map{"' '"}.join(" ")}"}.join " "
-col_labels = 3.times.map{p3_vals.map{|p3| "' ' '#{p3}' ' '"}}.join " "
 klasses = ["E", "C", "O"]
+
+=begin
+row_labels = p1_vals.map{|p1| "#{(p2_vals.size/2).times.map{"' '"}.join(" ")} '#{p1}' #{(p2_vals.size - p2_vals.size/2 - 1).times.map{"' '"}.join(" ")}"}.join " "
+col_labels = 3.times.map{p3_vals.map{|p3| "' ' '#{p3/10.0}' ' '"}}.join " "
 p1_vals.each do |p1|
 	p2_vals.each do |p2|
 		klasses.each do |k1|
@@ -120,6 +122,22 @@ p1_vals.each do |p1|
 			end
 		end
 		matrix = "#{matrix}\n"
+	end
+end
+=end
+
+row_labels = 3.times.map{p1_vals.map{|p1| "#{(p2_vals.size/2).times.map{"' '"}.join(" ")} '#{p1}' #{(p2_vals.size - p2_vals.size/2 - 1).times.map{"' '"}.join(" ")}"}.join " "}.join " "
+col_labels = 3.times.map{p3_vals.map{|p3| "'#{p3/10.0}'"}}.join " "
+klasses.each do |k2|
+	p1_vals.each do |p1|
+		p2_vals.each do |p2|
+			klasses.each do |k1|
+				p3_vals.each do |p3|				
+					matrix = "#{matrix}#{ratios[p1][p2][p3][k1][k2]} "
+				end
+			end
+			matrix = "#{matrix}\n"
+		end
 	end
 end
 

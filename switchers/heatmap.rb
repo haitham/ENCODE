@@ -89,9 +89,11 @@ open("#{subdir}/s_percent.out", "w"){ |f| scount.map{|k,v| [k,v/total]}.sort{|a,
 open("#{subdir}/n_percent.out", "w"){ |f| ncount.map{|k,v| [k,v/total]}.sort{|a,b| b.last == a.last ? a.first <=> b.first : b.last <=> a.last}.each{|pair| f.puts pair.join "    "} }
 
 matrix = ""
-row_labels = p1_vals.map{|p1| "'#{p1}'"}.join " "
-col_labels = 2.times.map{p2_vals.map{|p2| "'#{p2}' ' '"}}.join " "
 klasses = ["S", "N"]
+
+=begin
+row_labels = p1_vals.map{|p1| "'#{p1/10.0}'"}.join " "
+col_labels = 2.times.map{p2_vals.map{|p2| "'#{p2/10.0}' ' '"}.join " "}.join " "
 p1_vals.each do |p1|
 	klasses.each do |k1|
 		p2_vals.each do |p2|
@@ -101,6 +103,20 @@ p1_vals.each do |p1|
 		end
 	end
 	matrix = "#{matrix}\n"
+end
+=end
+
+row_labels = 2.times.map{p1_vals.map{|p1| "'#{p1/10.0}'"}.join " "}.join " "
+col_labels = 2.times.map{p2_vals.map{|p2| "'#{p2/10.0}'"}.join " "}.join " "
+klasses.each do |k2|
+	p1_vals.each do |p1|
+		klasses.each do |k1|
+			p2_vals.each do |p2|			
+				matrix = "#{matrix}#{ratios[p1][p2][k1][k2]} "
+			end
+		end
+		matrix = "#{matrix}\n"
+	end
 end
 
 open "#{subdir}/heatmap.m", "w" do |f|
