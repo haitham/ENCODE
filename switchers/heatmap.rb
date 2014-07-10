@@ -3,6 +3,7 @@ subdir, network_file, multifactor, genes_file = ARGV
 p1_vals, p2_vals = Dir.glob("#{subdir}/sclass_*").map{|f| f.split("_").last(2).map{|v| v.to_f}}.transpose.map{|a| a.uniq.sort}
 p1_vals = p1_vals.map{|v| v.to_i}
 total = p1_vals.size * p2_vals.size
+stats = []
 multifactor = multifactor.to_f
 
 
@@ -33,6 +34,9 @@ open network_file do |f|
 	end
 end
 min_genes = nodes.keys & genes
+stats << "number of genes: #{genes.size}"
+stats << "number of nodes: #{nodes.size}"
+stats << "Overlap: #{min_genes.size}"
 
 #Work on every combination of parameter values
 ratios = {}
@@ -63,6 +67,8 @@ p1_vals.each do |p1|
 		min_genes.each do |g|
 			size[klass[g]] = size[klass[g]] + 1
 		end
+		stats << "#{p1}, #{p2} - S: #{size["S"]}, N: #{size["N"]}"
+		
 		
 		interactions = {"S" => {"S" => 0, "N" => 0},
 						"N" => {"S" => 0, "N" => 0}
@@ -87,6 +93,7 @@ end
 
 open("#{subdir}/s_percent.out", "w"){ |f| scount.map{|k,v| [k,v/total]}.sort{|a,b| b.last == a.last ? a.first <=> b.first : b.last <=> a.last}.each{|pair| f.puts pair.join "    "} }
 open("#{subdir}/n_percent.out", "w"){ |f| ncount.map{|k,v| [k,v/total]}.sort{|a,b| b.last == a.last ? a.first <=> b.first : b.last <=> a.last}.each{|pair| f.puts pair.join "    "} }
+open("#{subdir}/stats.out", "w"){|f| f.puts stats.join("\n")}
 
 matrix = ""
 klasses = ["S", "N"]
